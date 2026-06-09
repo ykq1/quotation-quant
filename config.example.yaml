@@ -1,0 +1,76 @@
+# 复制为 config.yaml 后修改：
+#   cp config.example.yaml config.yaml
+quotation:
+  # refinitiv-api 服务地址（本地或网关）
+  base_url: "http://127.0.0.1:8080"
+  kline_path: "/v1/refinitiv/stock/kline/list/v2"
+
+backtest:
+  # ma_cross | rsi | bollinger | bollinger_breakout | macd | donchian | momentum
+  strategy: ma_cross
+  symbol: "600519.SH"
+  market: "SH"          # HK | US | SH | SZ
+  kline_type: "D"       # 日K
+  page_size: 300
+  # 均线交叉
+  fast_period: 20
+  slow_period: 60
+  # RSI 均值回归
+  rsi_period: 14
+  rsi_oversold: 30
+  rsi_overbought: 70
+  # 布林带均值回归
+  bollinger_period: 20
+  bollinger_std: 2.0
+  # 布林带突破（趋势）
+  bollinger_breakout_period: 20
+  bollinger_breakout_std: 2.0
+  # 价格动量（单标的）
+  momentum_lookback: 20
+  momentum_entry_threshold: 0.0   # 如 0.05 表示 20 日涨幅超 5% 才买入
+  momentum_exit_threshold: 0.0
+  # MACD 交叉
+  macd_fast: 12
+  macd_slow: 26
+  macd_signal: 9
+  # 唐奇安通道（海龟法则：20 日突破入、10 日跌破出）
+  donchian_entry_period: 20
+  donchian_exit_period: 10
+  initial_capital: 1000000
+  commission_rate: 0.0003   # 单边万三
+  slippage_rate: 0.0001     # 滑点
+  trade_on: "next_open"     # close | next_open
+
+# 组合回测：动量/多因子选股（run_portfolio_backtest.py）
+portfolio:
+  # momentum_rank | factor_rank
+  strategy: factor_rank
+  market: "SH"
+  page_size: 300
+  symbols:
+    - "600519.SH"
+    - "603986.SH"
+    - "601318.SH"
+    - "600036.SH"
+    - "000858.SZ"
+    - "002594.SZ"
+    - "300750.SZ"
+    - "601012.SH"
+  top_n: 3                  # 持有得分最高的 N 只
+  rebalance_days: 20        # 每 N 个交易日调仓
+  # 动量选股 momentum_rank
+  momentum_lookback: 20
+  min_momentum: 0.0
+  # 多因子选股 factor_rank
+  factor_lookback: 20
+  reversal_lookback: 5
+  factor_weights:
+    momentum: 0.40    # N 日涨幅
+    low_vol: 0.30     # 低波动（波动率越低分越高）
+    reversal: 0.20    # 短期超跌反弹
+    volume: 0.10      # 流动性（均量对数）
+  # min_factor_score: 0.0   # 可选：综合得分下限
+  initial_capital: 1000000
+  commission_rate: 0.0003
+  slippage_rate: 0.0001
+  trade_on: "next_open"

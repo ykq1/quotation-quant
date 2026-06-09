@@ -1,0 +1,43 @@
+"""布林带均值回归策略。"""
+
+from __future__ import annotations
+
+import pandas as pd
+
+from .base import Strategy
+
+
+class BollingerStrategy(Strategy):
+    """
+    布林带均值回归（仅做多）：
+    - 收盘价跌破下轨 -> 买入 (signal=1)
+    - 收盘价突破上轨 -> 平仓 (signal=-1)
+    """
+
+    def __init__(self, period: int = 20, std_dev: float = 2.0):
+        if period < 2:
+            raise ValueError("period 必须 >= 2")
+        if std_dev <= 0:
+            raise ValueError("std_dev 必须 > 0")
+        self.period = period
+        self.std_dev = std_dev
+
+    def generate_signals(self, bars: pd.DataFrame) -> pd.DataFrame:
+        df = bars.copy()
+        mid = df["close"].rolling(self.period, min_periods=self.period).mean()
+        std = df["close"].rolling(self.period, min_periods=self.period).std()
+        df["bb_mid"] = mid
+        df["bb_upper"] = mid + self.std_dev * std
+        df["bb_lower"] = mid - self.std_dev * std
+
+        prev_close = df["close"].shift(1)
+        prev_lower = df["bb_lower"].shift(1)
+        prev_upper = df["bb_upper"].shift(1)
+
+        buy = (df["close"] < df["bb_lower"]) & (prev_close >= prev_lower)
+        sell = (df["close"] > df["bb_upper"]) & (prev_close <= prev_upper)
+
+        df["signal"] = 0
+        df.loc[buy, "signal"] = 1
+        df.loc[sell, "signal"] = -1
+        return df
