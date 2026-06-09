@@ -97,7 +97,7 @@ python3 run_portfolio_backtest.py --universe-dir sample_data/universe --strategy
 3. **自动股票池**：码表 `/market/all` 批量拉 K 线
 4. **与 Java 指标对齐**：可改为调用 `/v1/datasource/ai/v2/stock/indicator` 的 SMA 结果
 
-## 目录结构
+## 量化项目结构
 
 ```
 quotation-quant/
