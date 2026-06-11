@@ -7,7 +7,7 @@ from typing import Dict, List, Literal, Optional
 
 import pandas as pd
 
-from backtest.metrics import BacktestMetrics, compute_metrics
+from backtest.metrics import BacktestMetrics, buy_hold_equity_from_panel, compute_metrics
 from strategy.portfolio_selector import PortfolioSelector
 
 TradeOn = Literal["close", "next_open"]
@@ -99,7 +99,15 @@ class PortfolioBacktestEngine:
             equity.append(self._portfolio_value(cash, holdings, close_panel, i))
 
         equity_series = pd.Series(equity, index=close_panel.index, name="equity")
-        metrics = compute_metrics(equity_series, trades, self.config.bars_per_year)
+        benchmark_equity = buy_hold_equity_from_panel(
+            close_panel, self.config.initial_capital
+        )
+        metrics = compute_metrics(
+            equity_series,
+            trades,
+            self.config.bars_per_year,
+            benchmark_equity=benchmark_equity,
+        )
         return PortfolioBacktestResult(
             equity_curve=equity_series,
             rebalance_log=rebalance_log,

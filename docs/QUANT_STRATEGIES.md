@@ -380,6 +380,9 @@ portfolio:
 | `round_trip_win_rate` | 盈利卖出次数 / 卖出总次数（回合胜率） |
 | `trade_count` | 交易总笔数 |
 | `final_equity` | 期末净值 |
+| `benchmark_total_return` | 买入持有基准总收益率（单标的持该股；组合等权持全部标的） |
+| `benchmark_annual_return` | 买入持有基准年化收益率 |
+| `excess_return` | 超额收益 = 策略总收益 − 基准总收益 |
 
 **年化计算公式**（2 年赚 20% → 年化约 9.54%）：
 

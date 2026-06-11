@@ -7,7 +7,7 @@ from typing import List, Literal, Optional
 
 import pandas as pd
 
-from backtest.metrics import BacktestMetrics, compute_metrics
+from backtest.metrics import BacktestMetrics, buy_hold_equity_from_close, compute_metrics
 from strategy.base import Strategy
 
 TradeOn = Literal["close", "next_open"]
@@ -82,7 +82,15 @@ class BacktestEngine:
             equity.append(mark)
 
         equity_series = pd.Series(equity, index=df.index, name="equity")
-        metrics = compute_metrics(equity_series, trades, self.config.bars_per_year)
+        benchmark_equity = buy_hold_equity_from_close(
+            df["close"], self.config.initial_capital
+        )
+        metrics = compute_metrics(
+            equity_series,
+            trades,
+            self.config.bars_per_year,
+            benchmark_equity=benchmark_equity,
+        )
         return BacktestResult(bars=df, equity_curve=equity_series, trades=trades, metrics=metrics)
 
     def _execution_price(self, df: pd.DataFrame, i: int) -> Optional[float]:
